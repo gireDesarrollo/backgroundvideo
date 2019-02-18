@@ -20,6 +20,8 @@
 #pragma mark -
 #pragma mark backgroundvideo
 
+
+
 - (void) start:(CDVInvokedUrlCommand *)command
 {
     //stop the device from being able to sleep
@@ -40,19 +42,20 @@
                                  self.webView.superview.frame.size.height
                                  );
     self.parentView = [[UIView alloc] initWithFrame:viewRect];
-    [self.webView.superview addSubview:self.parentView];
+    //[self.webView.superview addSubview:self.parentView];
+    [self.webView.superview insertSubview:self.parentView atIndex:0];
 
-    self.parentView.backgroundColor = [UIColor clearColor];
+    self.webView.backgroundColor = [UIColor clearColor];
     self.view = [[UIView alloc] initWithFrame: self.parentView.bounds];
     [self.parentView addSubview: view];
-    view.alpha = 0.5f;
+    //view.alpha = 1.0f;
     self.parentView.userInteractionEnabled = NO;
 
     //camera stuff
 
     //Capture session
     session = [[AVCaptureSession alloc] init];
-    [session setSessionPreset:AVCaptureSessionPresetLow];
+    [session setSessionPreset:AVCaptureSessionPreset640x480];
 
     //Get the front camera and set the capture device
     AVCaptureDevice *inputDevice = [self getCamera: self.camera];
@@ -96,13 +99,15 @@
 
     CALayer *rootLayer = [[self view] layer];
     [rootLayer setMasksToBounds:YES];
-    [self.previewLayer setFrame:CGRectMake(-70, 0, rootLayer.bounds.size.height, rootLayer.bounds.size.height)];
-    [rootLayer insertSublayer:self.previewLayer atIndex:0];
+
+    [self.previewLayer setFrame:CGRectMake(0, 0, self.webView.superview.frame.size.width, self.webView.superview.frame.size.height)];
+
+    [rootLayer insertSublayer:self.previewLayer atIndex:1];
+
 
     //go
     [session startRunning];
     [output startRecordingToOutputFileURL:fileURI recordingDelegate:self ];
-
     //return true to ensure callback fires
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -111,6 +116,9 @@
 - (void)stop:(CDVInvokedUrlCommand *)command
 {
     [output stopRecording];
+    //Waiting for complete de file saved, without this the file is readed before it's complete
+    //I didn't find a better way to wait to the file... It works but it's nasty.
+    [NSThread sleepForTimeInterval:1.000]; 
     self.view.alpha = 0;
 
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:outputPath];
@@ -124,7 +132,6 @@
     NSString *libPath = [self getLibraryPath];
 
     NSString *tempPath = [[NSString alloc] initWithFormat:@"%@%@_%i%@", libPath, self.token, fileNameIncrementer, FileExtension];
-
     while ([fileManager fileExistsAtPath:tempPath]) {
         tempPath = [NSString stringWithFormat:@"%@%@_%i%@", libPath, self.token, fileNameIncrementer, FileExtension];
         fileNameIncrementer++;
@@ -173,6 +180,12 @@
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
 {
+}
+
+
+- (NSString *) base64StringFromFileAtPath: (NSString*) filePath {
+    NSData * dataFromFile = [NSData dataWithContentsOfFile:filePath];
+    return [dataFromFile base64Encoding];
 }
 
 @end

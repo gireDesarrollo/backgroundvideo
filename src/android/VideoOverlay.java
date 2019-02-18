@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Surface;
+
 
 import java.io.IOException;
 
@@ -175,12 +177,13 @@ public class VideoOverlay extends ViewGroup implements TextureView.SurfaceTextur
                     mCamera = Camera.open(mCameraId);
 
                     // Set camera parameters
-                    mOrientation = CameraHelper.calculateOrientation((Activity) this.getContext(), mCameraId);
+                    mOrientation = CameraHelper.calculateOrientation((Activity) this.getContext(), mCameraId,Surface.ROTATION_180);
+
                     Camera.Parameters cameraParameters = mCamera.getParameters();
                     Camera.Size previewSize = CameraHelper.getPreviewSize(cameraParameters);
                     cameraParameters.setPreviewSize(previewSize.width, previewSize.height);
-                    cameraParameters.setRotation(mOrientation);
                     cameraParameters.setRecordingHint(true);
+                    cameraParameters.setRotation(mOrientation);
 
                     mCamera.setParameters(cameraParameters);
                     mCamera.setDisplayOrientation(mOrientation);

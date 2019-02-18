@@ -52,6 +52,10 @@ class CameraHelper {
     }
 
     static int calculateOrientation(Activity activity, int cameraId) {
+        return calculateOrientation(activity,cameraId,activity.getWindowManager().getDefaultDisplay().getRotation());
+    }
+
+    static int calculateOrientation(Activity activity, int cameraId, int currentScreenRotation) {
         if (cameraId == NO_CAMERA)
             return 0;
 
@@ -61,10 +65,9 @@ class CameraHelper {
         int cameraRotationOffset = info.orientation;
 
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int currentScreenRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
 
-        int degrees = 0;
-        switch (currentScreenRotation) {
+        int degrees = 180;
+       switch (currentScreenRotation) {
             case Surface.ROTATION_0:
                 degrees = 0;
                 break;
