@@ -22,11 +22,9 @@ class CameraHelper {
 
     static Camera.Size getLowestResolution(Camera.Parameters cp) {
         List<Camera.Size> sl = cp.getSupportedVideoSizes();
-
+        Camera.Size small=null;
         if (sl == null)
             sl = cp.getSupportedPictureSizes();
-
-        Camera.Size small = sl.get(0);
 
         for (Camera.Size s : sl) {
             if ((s.height * s.width) < (small.height * small.width))
