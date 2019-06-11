@@ -117,8 +117,10 @@ public class BackgroundVideo extends CordovaPlugin {
                         containerView.setAlpha(0.6f);
                         containerView.setRotation(180);
                         containerView.addView(videoOverlay, new ViewGroup.LayoutParams(displaymetrics.widthPixels, displaymetrics.heightPixels));
-
                         cordova.getActivity().addContentView(containerView, new ViewGroup.LayoutParams(displaymetrics.widthPixels, displaymetrics.heightPixels));
+                        //Bring webview to front
+                        webView.getView().setBackgroundColor(0x00000000);
+                        ((ViewGroup)webView.getView()).bringToFront();
                     } catch (Exception e) {
                         Log.e(TAG, "Error during preview create", e);
                         callbackContext.error(TAG + ": " + e.getMessage());
